@@ -115,7 +115,8 @@ def main():
         st.session_state.source_type = None
 
     st.header("Chat with a URL or a PDF document :books:")
-    user_question = st.text_input("Ask a question about your source:")
+    # user_question = st.text_input("Ask a question about your source:")
+    user_question = st.chat_input("Ask a question about your source:")
     if user_question:
         handle_userinput(user_question)
 
