@@ -1,2 +1,38 @@
+# Fichiers système macOS
+.DS_Store
+
+# Fichiers d'environnement virtuel Python
+venv/
+__pycache__/
+
+# Fichiers de configuration Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.pyc
+
+# Fichiers de logs
+*.log
+
+# Fichiers d'installation
+*.swp
+*.swo
+*.swn
+*.swm
+*.bak
+*.tmp
+*.cache
+*.out
+
+# Fichiers de test et de couverture
+.coverage
+.tox
+htmlcov/
+
+# Dossiers spécifiques à certains éditeurs ou IDE
+.idea/
+.vscode/
+
 .env
 test.py
