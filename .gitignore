@@ -36,3 +36,5 @@ htmlcov/
 
 .env
 test.py
+
+.chroma/
