@@ -72,7 +72,7 @@ def get_pdf_text(pdf_docs):
         pdf_reader = PdfReader(pdf)
         for page in pdf_reader.pages:
             text += page.extract_text()
-            st.write(text)
+            # st.write(text)
     return text
 
 
