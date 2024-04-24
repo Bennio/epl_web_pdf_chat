@@ -1,5 +1,6 @@
 import ast
 
+import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
@@ -34,7 +35,7 @@ def get_conversation_chain(vector_store):
         MessagesPlaceholder(variable_name="chat_history"),
         ("user", "{input}"),
         ("user",
-         "Given the above conversation, generate a search query to look up " 
+         "Given the above conversation, generate a search query to look up "
          "in order to get information relevant to the conversation")
     ])
 
@@ -54,7 +55,7 @@ def get_conversation_chain(vector_store):
 
 
 def get_response(user_input):
-    # Vérifier si 'conversation' a été initialisée
+    # Check if 'conversation' has been initialized
     if st.session_state.conversation is not None:
         response = st.session_state.conversation.invoke({
             "chat_history": st.session_state.chat_history,
@@ -71,6 +72,17 @@ def get_pdf_text(pdf_docs):
         pdf_reader = PdfReader(pdf)
         for page in pdf_reader.pages:
             text += page.extract_text()
+            st.write(text)
+    return text
+
+
+def get_excel_text(excel_files):
+    text = ""
+    for excel in excel_files:
+        excel_reader = pd.ExcelFile(excel)
+        for sheet_name in excel_reader.sheet_names:
+            df = excel_reader.parse(sheet_name)
+            text += df.to_string(index=False, header=False)
     return text
 
 
@@ -114,16 +126,14 @@ def main():
     if "source_type" not in st.session_state:
         st.session_state.source_type = None
 
-    st.header("Chat with a URL or a PDF document :books:")
-    # user_question = st.text_input("Ask a question about your source:")
+    st.header("Chat with a URL, a PDF, or an Excel document :books:")
     user_question = st.chat_input("Ask a question about your source:")
     if user_question:
         handle_userinput(user_question)
 
     with st.sidebar:
         st.header("EPL Team Resources")
-        # st.subheader("EPL source")
-        source_type = st.radio("Choose your source type:", ("URL", "PDF"))
+        source_type = st.radio("Choose your source type:", ("URL", "PDF", "Excel"))
         st.session_state.source_type = source_type
         if source_type == "URL":
             url = st.text_input("Enter your URL here and click on 'Process'")
@@ -144,6 +154,17 @@ def main():
                     st.session_state.conversation = get_conversation_chain(vectorstore)
                     st.session_state.chat_history = [
                         AIMessage(content="Hello, I am the EPL team PDF Chatbot. How may I assist you today?"),
+                    ]
+        elif source_type == "Excel":  # Add an Excel section
+            excel_files = st.file_uploader("Upload your Excel files here and click on 'Process'",
+                                           accept_multiple_files=True)
+            if st.button("Process"):
+                with st.spinner("Processing"):
+                    text = get_excel_text(excel_files)
+                    vectorstore = get_vectorstore_from_text(text)
+                    st.session_state.conversation = get_conversation_chain(vectorstore)
+                    st.session_state.chat_history = [
+                        AIMessage(content="Hello, I am the EPL team Excel Chatbot. How may I assist you today?"),
                     ]
 
 
