@@ -55,7 +55,7 @@ def get_conversation_chain(vector_store):
 
 
 def get_response(user_input):
-    # Vérifier si 'conversation' a été initialisée
+    # Check if 'conversation' has been initialized
     if st.session_state.conversation is not None:
         response = st.session_state.conversation.invoke({
             "chat_history": st.session_state.chat_history,
