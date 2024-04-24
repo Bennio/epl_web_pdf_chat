@@ -89,6 +89,26 @@ def get_countries_responses(sheet, questions):
     return responses_for_countries
 
 
+def write_countries_responses(sheet, countries_responses, questions):
+    # Trouver l'index de chaque question dans les en-têtes
+    question_indices = {question: questions.index(question) for question in questions}
+
+    for row in sheet.iter_rows(min_row=2, max_col=sheet.max_column, values_only=True):
+        country = row[0]  # Assumant que le pays est toujours dans la première colonne
+        if country in countries_responses:
+            # Récupérer les réponses pour le pays
+            answers = countries_responses[country]['answers']
+            for answer in answers:
+                question = answer['question']
+                response = answer['answer']
+                # Trouver la colonne correspondante pour la question
+                col_index = question_indices[question] + 4  # +4 pour compenser les premières colonnes ignorées
+                # Écrire la réponse dans la cellule appropriée
+                # On suppose que la ligne pour le pays est la même
+                # que dans la réponse de la variable countries_responses
+                sheet.cell(row=row[0].row, column=col_index).value = response
+
+
 # Charger le fichier Excel
 workbook = openpyxl.load_workbook(excel_file_path, data_only=True)
 
@@ -101,5 +121,11 @@ questions = get_merged_cell_headers(sheet_data_collected)
 # questions = sheet_data_collected.columns.tolist()[3:]
 
 countries_responses = get_countries_responses(sheet_sources, questions)
+
+# Écrire les réponses
+write_countries_responses(sheet_data_collected, countries_responses, questions)
+
+# Sauvegarder le fichier Excel
+workbook.save('Updated_Data_Evidence.xlsx')
 
 print(countries_responses)
