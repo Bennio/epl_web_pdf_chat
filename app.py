@@ -1,6 +1,3 @@
-import sys
-
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 import ast
 
 import pandas as pd
