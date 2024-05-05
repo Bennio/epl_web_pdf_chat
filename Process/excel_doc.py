@@ -7,7 +7,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # chemin vers le fichier Excel
-excel_file_path = '/Users/bendylatortue/Documents/Data_Evidence.xlsx'
+# excel_file_path = '/Users/bendylatortue/Documents/Data_Evidence.xlsx'
+excel_file_path = '/Users/bendylatortue/PycharmProjects/chatWithWebsiteAndPDF/Process/Updated_Data_Evidence.xlsx'
 api_endpoint = 'http://localhost:8000/backend/api/conversations/process-document/'
 auth_endpoint = 'http://localhost:8000/login/'
 
@@ -93,20 +94,27 @@ def write_countries_responses(sheet, countries_responses, questions):
     # Trouver l'index de chaque question dans les en-têtes
     question_indices = {question: questions.index(question) for question in questions}
 
-    for row in sheet.iter_rows(min_row=2, max_col=sheet.max_column, values_only=True):
-        country = row[0]  # Assumant que le pays est toujours dans la première colonne
-        if country in countries_responses:
-            # Récupérer les réponses pour le pays
-            answers = countries_responses[country]['answers']
-            for answer in answers:
-                question = answer['question']
-                response = answer['answer']
-                # Trouver la colonne correspondante pour la question
-                col_index = question_indices[question] + 4  # +4 pour compenser les premières colonnes ignorées
-                # Écrire la réponse dans la cellule appropriée
-                # On suppose que la ligne pour le pays est la même
-                # que dans la réponse de la variable countries_responses
-                sheet.cell(row=row[0].row, column=col_index).value = response
+    # Créer un dictionnaire pour suivre les lignes par pays (si nécessaire)
+    country_row_map = {}
+    current_row = 3  # Commencer à écrire à partir de la deuxième ligne
+
+    # Parcourir les réponses pour chaque pays
+    for country, data in countries_responses.items():
+        if country not in country_row_map:
+            # Si le pays n'est pas encore dans la feuille, ajoutez-le à une nouvelle ligne
+            country_row_map[country] = current_row
+            sheet.cell(row=current_row, column=1).value = country  # Mettre le nom du pays dans la première colonne
+            current_row += 1  # Incrementer la ligne pour le prochain pays
+
+        # Écrire les réponses pour le pays
+        answers = data['answers']
+        for answer in answers:
+            question = answer['question']
+            response = answer['answer']
+            if question in question_indices:
+                col_index = question_indices[
+                                question] + 4  # +4 pour ajuster avec les colonnes (les questions commencent à la 4e colonne)
+                sheet.cell(row=country_row_map[country], column=col_index).value = response
 
 
 # Charger le fichier Excel
